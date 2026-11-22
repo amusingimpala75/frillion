@@ -4,6 +4,7 @@
   jq,
   zip,
   nodejs,
+  typescript,
   browser,
 }:
 
@@ -19,6 +20,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     root = ./.;
     fileset = lib.fileset.unions [
       ./manifest.json
+      ./tsconfig.json
       ./src
       ./tests
     ];
@@ -27,7 +29,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
-  nativeBuildInputs = [ jq zip ];
+  nativeBuildInputs = [ jq zip typescript ];
   nativeCheckInputs = [ nodejs ];
 
   dontConfigure = true;
@@ -38,8 +40,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
+    tsc --project tsconfig.json
     mkdir -p extension dist
-    install -m644 src/popup.html src/popup.css src/popup.mjs src/score.mjs extension/
+    install -m644 src/popup.html src/popup.css build/popup.js build/score.js extension/
 
     jq --arg version '${finalAttrs.version}' '.version = $version' manifest.json > extension/manifest.json
     ${lib.optionalString (browser == "firefox") ''
@@ -60,7 +63,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     (
       cd extension
       zip -X ../dist/${finalAttrs.pname}.zip \
-        manifest.json popup.html popup.css popup.mjs score.mjs
+        manifest.json popup.html popup.css popup.js score.js
     )
 
     runHook postBuild

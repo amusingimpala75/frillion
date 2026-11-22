@@ -42,8 +42,10 @@ The browser-loading instructions below use the combined `nix build` layout.
 
 The flake uses `callPackage` to load `package.nix`, a browser-parameterized
 `stdenvNoCC.mkDerivation` with standard build, check, and install phases. Tests
-run as part of each browser package's build. Only the
-manifest, extension sources, and tests are included in the derivation's source;
+run as part of each browser package's build. TypeScript is strictly type-checked
+and compiled to JavaScript before packaging; no bundler or npm install is needed.
+Only the manifest, TypeScript configuration, extension sources, and tests are
+included in the derivation's source;
 local authentication fixtures are excluded. Archive timestamps are normalized
 for reproducible output.
 
@@ -81,7 +83,23 @@ The extension uses only the `activeTab` and `scripting` permissions. It does not
 
 Files under `examples/` are local development fixtures and are not included in either extension archive. Authentication fixtures can contain sensitive credentials; do not share them.
 
-## Tests
+## Development and tests
+
+Extension code lives in `src/*.ts`; `tsconfig.json` enables strict checking.
+Shared API and scoring types are in `src/types.ts`, with the browser API surface
+used by the extension declared in `src/browser.d.ts`. Type-only imports are erased,
+and the ZIPs contain only the compiled JavaScript and browser assets.
+
+```sh
+nix develop
+# Type-check without generating files:
+tsc --noEmit
+# Compile to build/ and run the JavaScript tests against that output:
+tsc
+node --test tests/*.test.mjs
+```
+
+To build and test through Nix:
 
 ```sh
 nix flake check

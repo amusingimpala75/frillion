@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-const source = readFileSync(new URL("../src/popup.mjs", import.meta.url), "utf8");
+const source = readFileSync(new URL("../build/popup.js", import.meta.url), "utf8");
 const injected = source.slice(source.indexOf("async function loadFriends()"), source.indexOf("\nfunction render("));
 
 function context(origin = "https://krillion.io", records = [], status = 200) {

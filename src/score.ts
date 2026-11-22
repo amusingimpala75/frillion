@@ -1,20 +1,22 @@
-export function scoreTeam(payload, excludedNames = new Set()) {
+import type { Answer, FriendsResponse, Question, Team } from "./types.js";
+
+export function scoreTeam(payload: FriendsResponse, excludedNames: ReadonlySet<string> = new Set()): Team {
   if (!payload || !Array.isArray(payload.leaderboard)) throw new Error("Unexpected response from Krillion.");
   const players = payload.leaderboard
-    .filter(p => Array.isArray(p.answers))
+    .filter((p): p is typeof p & { answers: Answer[] } => Array.isArray(p.answers))
     .map((p, id) => ({ id, name: p.username, self: Boolean(p.self), included: Boolean(p.self) || !excludedNames.has(p.username), contribution: 0, answers: p.answers }));
-  const questions = new Map();
+  const questions = new Map<string, Question>();
   for (const player of players) {
     if (!player.included) continue;
     // Each player can contribute at most once to a question.
-    const answers = new Map();
+    const answers = new Map<string, Answer>();
     for (const answer of player.answers) {
       if (typeof answer.prompt !== "string" || !Number.isFinite(answer.score) || answer.score < 0) continue;
-      if (!answers.has(answer.prompt) || answers.get(answer.prompt).score < answer.score) answers.set(answer.prompt, answer);
+      if (!answers.has(answer.prompt) || answers.get(answer.prompt)!.score < answer.score) answers.set(answer.prompt, answer);
     }
     for (const [prompt, answer] of answers) {
       if (!questions.has(prompt)) questions.set(prompt, { prompt, score: answer.score, winners: [] });
-      const question = questions.get(prompt);
+      const question = questions.get(prompt)!;
       if (answer.score > question.score) { question.score = answer.score; question.winners = []; }
       if (answer.score === question.score) question.winners.push({ id: player.id, name: player.name, answer: answer.answer });
     }

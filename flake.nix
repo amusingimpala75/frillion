@@ -17,6 +17,9 @@
         default = self'.packages.frillion;
       };
       checks.tests = self'.packages.frillion;
+      devShells.default = pkgs.mkShell {
+        packages = [ pkgs.typescript pkgs.nodejs ];
+      };
     };
   };
 }

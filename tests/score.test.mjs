@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scoreTeam } from "../src/score.mjs";
+import { scoreTeam } from "../build/score.js";
 
 const answer = (prompt, score, value = "answer") => ({ prompt, score, answer: value });
 const player = (username, answers, self = false) => ({ username, answers, self });

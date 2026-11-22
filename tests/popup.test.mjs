@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { scoreTeam } from "../src/score.mjs";
+import { scoreTeam } from "../build/score.js";
 
-const source = readFileSync(new URL("../src/popup.mjs", import.meta.url), "utf8")
-  .replace('import { scoreTeam } from "./score.mjs";', "")
+const source = readFileSync(new URL("../build/popup.js", import.meta.url), "utf8")
+  .replace('import { scoreTeam } from "./score.js";', "")
   .replace(/refresh\(\);\s*$/, "");
 
 function popup() {
