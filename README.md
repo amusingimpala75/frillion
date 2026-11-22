@@ -1,3 +1,5 @@
+WARNING: This is heavily LLM-ware. I tried to make decent steering decisions, and the code *should and appears* to not break anything, but I cannot make any guarantees. Caveat emptor.
+
 # Frillion
 
 A Chrome and Firefox extension that shows the best combined Krillion score for you and your friends, in a toolbar popup.
