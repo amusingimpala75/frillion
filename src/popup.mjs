@@ -2,7 +2,7 @@ import { scoreTeam } from "./score.mjs";
 
 const api = globalThis.browser ?? globalThis.chrome;
 const $ = id => document.getElementById(id);
-const format = value => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
+const format = value => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
 
 // Runs only on explicit popup refresh, in the active site's isolated world.
 // Neither the token nor the Firebase record leaves this function.

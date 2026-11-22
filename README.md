@@ -8,7 +8,7 @@ For each question, Frillion takes the highest available score across you and you
 
 Each question's points are divided equally among the players tied for its best score. For example, if John and Jill score 85 and Jake scores 60, the team receives 85 points; John and Jill contribute 42.5 each. The question breakdown lists the winning players and their answers.
 
-Players without available results are excluded. Contributions are calculated at full precision and displayed with up to two decimal places.
+Players without available results are excluded. Contributions are calculated at full precision but displayed rounded to whole points. Displayed contributions may therefore not sum exactly to the team score.
 
 ## Build
 
