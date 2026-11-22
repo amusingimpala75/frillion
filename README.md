@@ -23,6 +23,13 @@ Produces two unsigned extension archives:
 - `result/frillion-chrome.zip`
 - `result/frillion-firefox.zip`
 
+The default package is also available as `nix build .#frillion`. The flake uses
+`callPackage` to load `package.nix`, a `stdenvNoCC.mkDerivation` with standard
+build, check, and install phases. Tests run as part of the build. Only the
+manifest, extension sources, and tests are included in the derivation's source;
+local authentication fixtures are excluded. Archive timestamps are normalized
+for reproducible output.
+
 ## Load in a browser
 
 ### Firefox
