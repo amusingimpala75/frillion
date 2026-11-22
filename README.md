@@ -18,14 +18,31 @@ Requires Nix with flakes enabled:
 nix build
 ```
 
-Produces two unsigned extension archives:
+The default package, also available as `nix build .#frillion`, produces a
+directory containing symlinks to two unsigned extension archives:
 
 - `result/frillion-chrome.zip`
 - `result/frillion-firefox.zip`
 
-The default package is also available as `nix build .#frillion`. The flake uses
-`callPackage` to load `package.nix`, a `stdenvNoCC.mkDerivation` with standard
-build, check, and install phases. Tests run as part of the build. Only the
+Each browser is also a distinct package whose output is the ZIP file itself:
+
+```sh
+nix build .#frillion-firefox  # result points directly to the Firefox ZIP
+nix build .#frillion-chrome   # result points directly to the Chrome ZIP
+```
+
+To keep both individual build links with recognizable archive names:
+
+```sh
+nix build .#frillion-firefox --out-link frillion-firefox.zip
+nix build .#frillion-chrome --out-link frillion-chrome.zip
+```
+
+The browser-loading instructions below use the combined `nix build` layout.
+
+The flake uses `callPackage` to load `package.nix`, a browser-parameterized
+`stdenvNoCC.mkDerivation` with standard build, check, and install phases. Tests
+run as part of each browser package's build. Only the
 manifest, extension sources, and tests are included in the derivation's source;
 local authentication fixtures are excluded. Archive timestamps are normalized
 for reproducible output.

@@ -4,11 +4,15 @@
   jq,
   zip,
   nodejs,
+  browser,
 }:
 
+assert lib.assertOneOf "browser" browser [ "chrome" "firefox" ];
+
 stdenvNoCC.mkDerivation (finalAttrs: {
-  pname = "frillion";
+  pname = "frillion-${browser}";
   version = (lib.importJSON ./manifest.json).version;
+  name = "${finalAttrs.pname}-${finalAttrs.version}.zip";
 
   # Do not copy local authentication fixtures into the Nix store.
   src = lib.fileset.toSource {
@@ -27,36 +31,37 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   nativeCheckInputs = [ nodejs ];
 
   dontConfigure = true;
+  # The output is an archive file, not a directory with binaries to fix up.
+  dontFixup = true;
   doCheck = true;
 
   buildPhase = ''
     runHook preBuild
 
-    mkdir -p chrome firefox dist
-    for browser in chrome firefox; do
-      install -m644 src/popup.html src/popup.css src/popup.mjs src/score.mjs "$browser/"
-    done
+    mkdir -p extension dist
+    install -m644 src/popup.html src/popup.css src/popup.mjs src/score.mjs extension/
 
-    jq --arg version '${finalAttrs.version}' '.version = $version' manifest.json > chrome/manifest.json
-    jq '. + {
-      browser_specific_settings: {
-        gecko: {
-          id: "frillion@extensions.krillion.io",
-          strict_min_version: "109.0"
+    jq --arg version '${finalAttrs.version}' '.version = $version' manifest.json > extension/manifest.json
+    ${lib.optionalString (browser == "firefox") ''
+      jq '. + {
+        browser_specific_settings: {
+          gecko: {
+            id: "frillion@extensions.krillion.io",
+            strict_min_version: "109.0"
+          }
         }
-      }
-    }' chrome/manifest.json > firefox/manifest.json
+      }' extension/manifest.json > extension/manifest.json.tmp
+      mv extension/manifest.json.tmp extension/manifest.json
+    ''}
 
     # ZIP stores timestamps; normalize them and omit filesystem metadata.
     export TZ=UTC
-    find chrome firefox -type f -exec touch -t 198001010000.00 {} +
-    for browser in chrome firefox; do
-      (
-        cd "$browser"
-        zip -X ../dist/frillion-"$browser".zip \
-          manifest.json popup.html popup.css popup.mjs score.mjs
-      )
-    done
+    find extension -type f -exec touch -t 198001010000.00 {} +
+    (
+      cd extension
+      zip -X ../dist/${finalAttrs.pname}.zip \
+        manifest.json popup.html popup.css popup.mjs score.mjs
+    )
 
     runHook postBuild
   '';
@@ -69,8 +74,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   installPhase = ''
     runHook preInstall
-    install -Dm644 dist/frillion-chrome.zip "$out/frillion-chrome.zip"
-    install -Dm644 dist/frillion-firefox.zip "$out/frillion-firefox.zip"
+    install -m644 dist/${finalAttrs.pname}.zip "$out"
     runHook postInstall
   '';
 
