@@ -1,10 +1,11 @@
-export function scoreTeam(payload) {
+export function scoreTeam(payload, excludedNames = new Set()) {
   if (!payload || !Array.isArray(payload.leaderboard)) throw new Error("Unexpected response from Krillion.");
   const players = payload.leaderboard
     .filter(p => Array.isArray(p.answers))
-    .map((p, id) => ({ id, name: p.username, self: Boolean(p.self), contribution: 0, answers: p.answers }));
+    .map((p, id) => ({ id, name: p.username, self: Boolean(p.self), included: Boolean(p.self) || !excludedNames.has(p.username), contribution: 0, answers: p.answers }));
   const questions = new Map();
   for (const player of players) {
+    if (!player.included) continue;
     // Each player can contribute at most once to a question.
     const answers = new Map();
     for (const answer of player.answers) {

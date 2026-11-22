@@ -49,3 +49,43 @@ test("empty and malformed responses", () => {
   assert.equal(team().total, 0);
   assert.throws(() => scoreTeam({}), /Unexpected/);
 });
+
+test("excluding a best scorer lowers the total and redistributes contributions", () => {
+  const payload = { leaderboard: [
+    player("John", [answer("Q", 85, "tbilisi")]),
+    player("Jill", [answer("Q", 85, "cape town")]),
+    player("Jake", [answer("Q", 60, "london")], true),
+  ] };
+  const oneExcluded = scoreTeam(payload, new Set(["John"]));
+  assert.equal(oneExcluded.total, 85);
+  assert.equal(oneExcluded.players.find(p => p.name === "Jill").contribution, 85);
+  assert.equal(oneExcluded.players.find(p => p.name === "John").contribution, 0);
+  assert.equal(oneExcluded.players.find(p => p.name === "John").included, false);
+  assert.deepEqual(oneExcluded.questions[0].winners.map(w => w.name), ["Jill"]);
+
+  const bothExcluded = scoreTeam(payload, new Set(["John", "Jill"]));
+  assert.equal(bothExcluded.total, 60);
+  assert.equal(bothExcluded.players.find(p => p.self).contribution, 60);
+  assert.equal(bothExcluded.players.length, 3);
+  assert.deepEqual(bothExcluded.questions[0].winners.map(w => w.answer), ["london"]);
+
+  // Re-enabling everyone restores scores without changing the source data.
+  assert.equal(scoreTeam(payload).players.find(p => p.name === "John").contribution, 42.5);
+  assert.equal(payload.leaderboard[0].answers[0].score, 85);
+});
+
+test("self always counts, even if present in the exclusion set", () => {
+  const payload = { leaderboard: [player("You", [answer("Q", 60)], true)] };
+  const result = scoreTeam(payload, new Set(["You"]));
+  assert.equal(result.total, 60);
+  assert.equal(result.players[0].included, true);
+});
+
+test("excluding every available friend leaves a selectable roster and zero score", () => {
+  const payload = { leaderboard: [player("A", [answer("Q", 85)])] };
+  const result = scoreTeam(payload, new Set(["A"]));
+  assert.equal(result.total, 0);
+  assert.equal(result.questions.length, 0);
+  assert.equal(result.players.length, 1);
+  assert.equal(result.players[0].included, false);
+});

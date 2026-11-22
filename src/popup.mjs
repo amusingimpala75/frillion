@@ -3,6 +3,8 @@ import { scoreTeam } from "./score.mjs";
 const api = globalThis.browser ?? globalThis.chrome;
 const $ = id => document.getElementById(id);
 const format = value => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
+const excludedNames = new Set();
+let currentPayload;
 
 // Runs only on explicit popup refresh, in the active site's isolated world.
 // Neither the token nor the Firebase record leaves this function.
@@ -52,11 +54,27 @@ function render(team) {
   $("date").textContent = team.date ?? "";
   $("players").replaceChildren(...team.players.map(player => {
     const li = document.createElement("li");
+    const label = document.createElement("label");
+    if (!player.self) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "include-player-" + player.id;
+      checkbox.checked = player.included;
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) excludedNames.delete(player.name);
+        else excludedNames.add(player.name);
+        render(scoreTeam(currentPayload, excludedNames));
+        document.getElementById(checkbox.id)?.focus();
+      });
+      label.append(checkbox);
+    }
     const name = document.createElement("span");
     name.textContent = player.name + (player.self ? " (you)" : "");
+    label.append(name);
     const points = document.createElement("strong");
-    points.textContent = format(player.contribution);
-    li.append(name, points);
+    points.textContent = player.included ? format(player.contribution) : "—";
+    li.classList.toggle("excluded", !player.included);
+    li.append(label, points);
     return li;
   }));
   $("questions").replaceChildren(...team.questions.map(question => {
@@ -89,7 +107,8 @@ async function refresh() {
     if (payload?.unlocked === false) throw new Error("Krillion has not unlocked these results yet.");
     const team = scoreTeam(payload);
     if (!team.questions.length) throw new Error("No scores are available yet.");
-    render(team);
+    currentPayload = payload;
+    render(scoreTeam(currentPayload, excludedNames));
     $("status").hidden = true;
     $("results").hidden = false;
   } catch (error) {

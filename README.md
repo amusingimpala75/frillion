@@ -69,6 +69,8 @@ Sign in to [Krillion](https://krillion.io), keep a Krillion page active, and cli
 
 The popup refreshes whenever it opens. Use **Refresh** to reload scores without closing it. Expand **Best scores by question** to see the winning answers and individual shares.
 
+Each friend starts checked. Uncheck a friend to exclude their scores from the team score, contributions, and question breakdown; their row stays visible so you can re-enable them. Your own scores always count. Changes recalculate immediately without another API request. Selections survive manual refreshes but reset when the popup is closed.
+
 Frillion only works while the active page is on `https://krillion.io`. If results are locked or unavailable, it displays a message instead of a score. If authentication fails, reopen Krillion, sign in again, and refresh.
 
 ## Authentication and privacy
