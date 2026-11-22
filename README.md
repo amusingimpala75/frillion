@@ -99,6 +99,16 @@ tsc
 node --test tests/*.test.mjs
 ```
 
+Format all maintained source files with `nix fmt` (or `treefmt` inside
+`nix develop`). treefmt-nix runs:
+
+- **nixfmt** for Nix formatting.
+- **deadnix** and **statix** for unused Nix bindings and Nix code improvements.
+- **Prettier** for TypeScript, JavaScript tests, HTML, CSS, JSON, and Markdown.
+
+Generated files, local credential fixtures in `examples/`, and `flake.lock` are
+excluded. Formatting is also checked by `nix flake check`.
+
 To build and test through Nix:
 
 ```sh

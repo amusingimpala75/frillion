@@ -8,11 +8,14 @@
   browser,
 }:
 
-assert lib.assertOneOf "browser" browser [ "chrome" "firefox" ];
+assert lib.assertOneOf "browser" browser [
+  "chrome"
+  "firefox"
+];
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "frillion-${browser}";
-  version = (lib.importJSON ./manifest.json).version;
+  inherit ((lib.importJSON ./manifest.json)) version;
   name = "${finalAttrs.pname}-${finalAttrs.version}.zip";
 
   # Do not copy local authentication fixtures into the Nix store.
@@ -29,7 +32,11 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
-  nativeBuildInputs = [ jq zip typescript ];
+  nativeBuildInputs = [
+    jq
+    zip
+    typescript
+  ];
   nativeCheckInputs = [ nodejs ];
 
   dontConfigure = true;

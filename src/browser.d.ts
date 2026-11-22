@@ -2,10 +2,12 @@
 // Both Firefox and Chrome MV3 provide this surface.
 interface ExtensionAPI {
   tabs: {
-    query(options: { active: boolean; currentWindow: boolean }): Promise<Array<{
-      id?: number;
-      url?: string;
-    }>>;
+    query(options: { active: boolean; currentWindow: boolean }): Promise<
+      Array<{
+        id?: number;
+        url?: string;
+      }>
+    >;
   };
   scripting: {
     executeScript<T>(options: {
