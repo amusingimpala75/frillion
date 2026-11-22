@@ -1,0 +1,12 @@
+when:
+  - event: pull_request
+    branch: trunk
+  - event: push
+    branch: trunk
+
+engine: nixery
+
+steps:
+  - name: flake check
+    command: |
+      nix flake check
