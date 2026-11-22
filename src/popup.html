@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Frillion</title><link rel="stylesheet" href="popup.css"></head>
+<body>
+<header><h1>Frillion</h1><button id="refresh" type="button">Refresh</button></header>
+<main aria-busy="true">
+<p id="status" role="status">Loading Krillion scores…</p>
+<section id="results" hidden>
+<div class="summary"><span>Team score</span><strong id="total"></strong><small id="date"></small></div>
+<h2>Contributions</h2><ul id="players"></ul>
+<details><summary>Best scores by question</summary><ol id="questions"></ol></details>
+</section>
+</main>
+<script type="module" src="popup.mjs"></script>
+</body></html>

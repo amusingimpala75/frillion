@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Frillion",
+  "version": "0.1.0",
+  "description": "Your team's best Krillion scores and shared contributions.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_title": "Frillion",
+    "default_popup": "popup.html"
+  }
+}
